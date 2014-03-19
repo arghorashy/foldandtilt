@@ -14,7 +14,7 @@ using namespace cv;
 // Function headers
 void scaleImage(InputArray _src, OutputArray _dst);
 void getFoldAndTiltParams(Mat& image, bool showResult);
-Rect returnNBiggestRectangles(std::vector<Rect>& in, std::vector<Rect>& out, int num);
+void returnNBiggestRectangles(std::vector<Rect>& in, std::vector<Rect>& out, int num);
 
 /** Global variables */
 String face_cascade_name = "../../../../../assets/haarcascade_frontalface_default.xml";
@@ -97,44 +97,40 @@ void scaleImage(InputArray _src, OutputArray _dst)
     
 }
 
-Rect returnNBiggestRectangles(std::vector<Rect>& in, std::vector<Rect>& out, int num)
+void returnNBiggestRectangles(std::vector<Rect>& in, std::vector<Rect>& out, int num)
 {
+    
     Rect r = Rect(0,0,0,0);
     
     if (num >= in.size())
     {
         out = in;
-        return r;
+        return;
     }
-    else if (num > 0)
+    else if (num == 0)
     {
-        if (num > 1)
-        {
-            r = returnNBiggestRectangles(in, out, num-1);
-            out.push_back(r);
-        }
-        
-        // Do comparison and return largest
-        int w = 0, h = 0, ind;
-        for( size_t i = 0; i < in.size(); i++ )
-        {
-            if (in[i].width > w || in[i].height > h)
-            {
-                w = in[i].width;
-                h = in[i].height;
-                r = in[i];
-                ind = int(i);
-            }
-        }
-        in.erase(in.begin() + ind + 1);
-        return r;
-        
+        return;
     }
     else
     {
-        printf("Invalid value for parameter num, for function returnNBiggestRectangles");
-        exit(-1);
+        for (int j = 0; j < num; j++)
+        {
+            int w = 0, h = 0, ind;
+            for( size_t i = 0; i < in.size(); i++ )
+            {
+                if (in[i].width > w || in[i].height > h)
+                {
+                    w = in[i].width;
+                    h = in[i].height;
+                    r = in[i];
+                    ind = int(i);
+                }
+            }
+            out.push_back(r);
+            in.erase(in.begin() + ind);
+        }
     }
+
 
     
 }
@@ -189,7 +185,17 @@ void getFoldAndTiltParams(Mat& image, bool showResult)
     // If 4th parameter higher: more rejection
     // Set 5th and 6th parameter to Size(0,0) to use default
     detectN(image_gray, faces, face_cascade, 1);
-    Rect face = faces[0];
+    Rect face;
+    if (faces.size() > 0)
+    {
+        face = faces[0];
+    }
+    else
+    {
+        printf("No faces found!");
+        exit(-1);
+    }
+    
     Mat face_image = image_gray(faces[0]);
     
     if (showResult)
