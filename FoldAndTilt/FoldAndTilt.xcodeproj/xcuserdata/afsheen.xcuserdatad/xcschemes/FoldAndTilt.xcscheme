@@ -59,7 +59,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "../../../../../assets/my_jpeg.jpg"
+            argument = "../../../../../assets/my_jpeg.jpg  ../../../../../assets/out 100"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
