@@ -14,6 +14,7 @@
 using namespace cv;
 
 // Function headers
+void correctGamma( Mat img, Mat& imgOut, double gamma );
 void scaleImage(InputArray _src, OutputArray _dst);
 void getFoldAndTiltParams(Mat& image, bool showResult, Rect& face, Rect& lefteye, Rect& righteye, Rect& mouth);
 void returnNBiggestRectangles(std::vector<Rect>& in, std::vector<Rect>& out, int num);
@@ -65,9 +66,8 @@ int main(int argc, char** argv)
         outPath = argv[2];
         
         string strIntensity = argv[3];
-        intensity = atoi(strIntensity.c_str());
-        
-        
+        //intensity = atoi(strIntensity.c_str());
+        intensity = -100;
         
         
     }
@@ -93,6 +93,22 @@ int main(int argc, char** argv)
 
     
     return 0; 
+}
+
+
+// Adapted from http://subokita.com/2013/06/18/simple-and-fast-gamma-correction-on-opencv/
+void correctGamma( Mat img, Mat& imgOut, double gamma ) {
+    double inverse_gamma = 1.0 / gamma;
+    
+    Mat lut_matrix(1, 256, CV_8UC1 );
+    uchar * ptr = lut_matrix.ptr();
+    for( int i = 0; i < 256; i++ )
+        ptr[i] = (int)( pow( (double) i / 255.0, inverse_gamma ) * 255.0 );
+    
+    Mat result;
+    LUT( img, lut_matrix, imgOut );
+    
+
 }
 
 void foldAndTilt(Mat imageIn, Mat& imageOut, Mat relief, Rect face, double d, double alph, int intensity)
@@ -175,7 +191,7 @@ void getReliefAfterFold(Mat image, Mat& relief, Rect face, Rect lefteye, Rect ri
     relief *= 127;
     
     
-    Point lefteyePt(lefteye.x + lefteye.width*0.5, lefteye.y + lefteye.height*0.5);
+    Point lefteyePt(lefteye.x + lefteye.width *0.5, lefteye.y + lefteye.height*0.5);
     Point leftmouthPt(mouth.x, mouth.y + mouth.height*0.5);
     Point righteyePt(righteye.x + righteye.width*0.5, righteye.y + righteye.height*0.5);
     Point rightmouthPt(mouth.x + mouth.width, mouth.y + mouth.height*0.5);
@@ -313,40 +329,60 @@ void returnNBiggestRectangles(std::vector<Rect>& in, std::vector<Rect>& out, int
 // Can speed this up by doing some sort of binary search...
 void detectN(InputArray _src, std::vector<Rect>& found, CascadeClassifier cascade, int num)
 {
-    Mat im = _src.getMat();
+    Mat imorig = _src.getMat();
+    Mat im = imorig.clone();
     
-    // repeat cascade with stricter rejection until only 1 face is found.
-    for (int i = 0; i < 200; i++)
+    // Cascade detection threshold
+    int i;
+    int maxi = 200;
+    
+    // Gamma correction values
+    int j = 0;
+    double jvalues[] = {2.0,1.5,0.75,0.5};
+    
+    bool finished = false;
+    
+    while(true)
     {
-        cascade.detectMultiScale(im, found, 1.1, i, 0, Size(0,0), Size(0,0));
-        if (found.size() == num)
+        // repeat cascade with stricter rejection until only 1 face is found.
+        for (i = 0; i < maxi; i++)
         {
-            return;
-        }
-        else if (found.size() < num)
-        {
-            if (i == 0)
+            cascade.detectMultiScale(im, found, 1.1, i, 0, Size(0,0), Size(0,0));
+            if (found.size() == num)
             {
                 return;
             }
-            else
+            else if (found.size() < num)
             {
                 if (i != 0)
                 {
+                    
                     i--;
                     cascade.detectMultiScale(im, found, 1.1, i, 0, Size(0,0), Size(0,0));
-                
+                    
                     // Resort to getting n biggest ones, if cannot find a value of i
                     // for which n instances are found.
                     std::vector<Rect> biggest;
                     returnNBiggestRectangles(found, biggest, num);
                     found = biggest;
                     return;
+                    
                 }
-                else return;
+                else break;
                 
             }
+            
         }
+
+        if (j < sizeof(jvalues))
+        {
+            correctGamma( imorig, im, jvalues[j++] );
+            
+        }
+        else return;  // Failure
+
+        
+        
     }
 }
 

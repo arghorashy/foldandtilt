@@ -1,0 +1,8 @@
+Requires openCV
+	- See instructions for installing with cmake here: http://stackoverflow.com/questions/19671827/opencv-installation-on-mac-os-x
+	- If using XCode, link it with openCV, by following the instructions here: http://docs.opencv.org/doc/tutorials/ios/hello/hello.html#opencvioshelloworld
+
+Todo:
+- Add support for multiple faces.
+- Draw line between side of smile and side of middle-side of eye  (why??)
+- 
