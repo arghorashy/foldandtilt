@@ -23,10 +23,10 @@ void extendLinePointsToEdges(Rect face, Point& p1, Point& p2);
 void foldAndTilt(Mat imageIn, Mat& imageOut, Mat relief, Rect face, double d, double alph, int intensity);
 
 /** Global variables */
-String face_cascade_name = "../../../../../assets/haarcascade_frontalface_default.xml";
-String eyeleft_cascade_name = "../../../../../assets/haarcascade_mcs_lefteye.xml";
-String eyeright_cascade_name = "../../../../../assets/haarcascade_mcs_righteye.xml";
-String mouth_cascade_name = "../../../../../assets/Mouth.xml";
+String face_cascade_name = "assets/cascades/haarcascade_frontalface_default.xml";
+String eyeleft_cascade_name = "assets/cascades/haarcascade_mcs_lefteye.xml";
+String eyeright_cascade_name = "assets/cascades/haarcascade_mcs_righteye.xml";
+String mouth_cascade_name = "assets/cascades/Mouth.xml";
 CascadeClassifier face_cascade;
 CascadeClassifier eyesleft_cascade;
 CascadeClassifier eyesright_cascade;
