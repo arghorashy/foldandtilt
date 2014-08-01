@@ -20,7 +20,7 @@ void getFoldAndTiltParams(Mat& image, bool showResult, Rect& face, Rect& lefteye
 void returnNBiggestRectangles(std::vector<Rect>& in, std::vector<Rect>& out, int num);
 void getReliefAfterFold(Mat image, Mat& relief, Rect face, Rect lefteye, Rect righteye, Rect mouth, bool debugdisplay);
 void extendLinePointsToEdges(Rect face, Point& p1, Point& p2);
-void foldAndTilt(Mat imageIn, Mat& imageOut, Mat relief, Rect face, double d, double alph, int intensity);
+void foldAndTilt(Mat imageIn, Mat& imageOut, Mat relief, Rect face, double d, double alph, int intensity, bool showResult);
 
 /** Global variables */
 String face_cascade_name = "assets/cascades/haarcascade_frontalface_default.xml";
@@ -38,6 +38,9 @@ int main(int argc, char** argv)
     Mat image;
     string outPath;
     int intensity;
+    bool show;
+
+    string expectedUsage = "Expected usage: FoldAndTilt.out <picture.jpg> <outpath.jpg> <intensity value [-100,100]> <show [true,false]>\n";
     
     // Load cascades
     if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading cascade\n"); return -1; };
@@ -48,9 +51,9 @@ int main(int argc, char** argv)
     // Expect image file as argument
     // Good resource for getting Xcode 4 to put in command-line arguments on-the-fly
     // http://stackoverflow.com/questions/5025256/how-do-you-specify-command-line-arguments-in-xcode-4
-    if (argc != 4)
+    if (argc != 5)
     {
-        printf("Expected usage: FoldAndTilt.out <picture.jpg> <outpath.jpg> <intensity value [-100,100]>");
+        printf("%s", expectedUsage.c_str());
         return -1;
     }
     else
@@ -66,9 +69,22 @@ int main(int argc, char** argv)
         outPath = argv[2];
         
         string strIntensity = argv[3];
-        //intensity = atoi(strIntensity.c_str());
-        intensity = -100;
-        
+        intensity = atoi(strIntensity.c_str());
+
+        bool show ;
+        if (strcmp(argv[4], "true") == 0)
+        {
+            show = true;
+        }
+        else if (strcmp(argv[4], "false") == 0)
+        {
+            show = false;
+        }
+        else
+        {
+            printf("%s", expectedUsage.c_str());
+            printf("show parameter must be true or false.\n");
+        }
         
     }
     
@@ -83,7 +99,7 @@ int main(int argc, char** argv)
     Mat relief;
     getReliefAfterFold(image, relief, face, lefteye, righteye, mouth, false);
     
-    foldAndTilt(image, image, relief, face, 1000.0, 0.75, intensity);
+    foldAndTilt(image, image, relief, face, 1000.0, 0.75, intensity, show);
     
     
     vector<int> compression_params;
@@ -111,7 +127,7 @@ void correctGamma( Mat img, Mat& imgOut, double gamma ) {
 
 }
 
-void foldAndTilt(Mat imageIn, Mat& imageOut, Mat relief, Rect face, double d, double alph, int intensity)
+void foldAndTilt(Mat imageIn, Mat& imageOut, Mat relief, Rect face, double d, double alph, int intensity, bool showResult)
 {
     imageOut = imageIn.clone();
     
@@ -152,6 +168,8 @@ void foldAndTilt(Mat imageIn, Mat& imageOut, Mat relief, Rect face, double d, do
         }
     }
     
+    if (! showResult) return;
+
     
     namedWindow("Display Image", WINDOW_AUTOSIZE );
     imshow("Display Image", imageOut);
