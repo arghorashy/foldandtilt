@@ -1,6 +1,9 @@
 Requires openCV
-	- See instructions for installing with cmake here: http://stackoverflow.com/questions/19671827/opencv-installation-on-mac-os-x
-	- If using XCode, link it with openCV, by following the instructions here: http://docs.opencv.org/doc/tutorials/ios/hello/hello.html#opencvioshelloworld
+	If using Mac
+		- See instructions for installing with cmake here: http://stackoverflow.com/questions/19671827/opencv-installation-on-mac-os-x
+		- If using XCode, link it with openCV, by following the instructions here: http://docs.opencv.org/doc/tutorials/ios/hello/hello.html#opencvioshelloworld
+	If using Ubuntu
+		- If using Ubuntu: https://help.ubuntu.com/community/OpenCV
 
 Using CMake!!!  =D
 	- Go to ./CMake
